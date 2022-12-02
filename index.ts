@@ -1,23 +1,18 @@
 import { readFileSync } from 'fs'
 import solution1 from './days/1'
+import solution2 from './days/2'
 
 const days = [
-    solution1
+    solution1,
+    solution2
 ]
 
 function execute(day: number, part: number = 1){
     const solution = days[day - 1]
 
-    const data = solution.getData(readFileSync(`./input/${day}.txt`).toString())
+    const data = readFileSync(`./input/${day}.txt`).toString()
 
-    switch(part){
-        case 1:
-            console.log(solution.solve1(data))
-            break;
-        case 2:
-            console.log(solution.solve2(data))
-            break;
-    }
+    solution(data,part)
 }
 
 if(!process.argv[1]){

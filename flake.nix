@@ -21,6 +21,7 @@
           nodePackages.pnpm
           yarn
           aocd
+          gh
           nodePackages.typescript
           nodePackages.typescript-language-server
         ];

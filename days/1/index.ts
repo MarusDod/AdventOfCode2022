@@ -1,5 +1,5 @@
 import { readFileSync } from "fs"
-import { fold } from "../../lib/helper"
+import { fold, wrapSolution } from "../../lib/helper"
 import Problem from "../../lib/problem"
 
 class ThreeSet {
@@ -52,4 +52,4 @@ const solution: Problem<number[][],number> = {
     }
 }
 
-export default solution
+export default wrapSolution(solution)

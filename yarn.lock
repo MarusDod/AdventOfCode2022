@@ -12,6 +12,11 @@ fs@^0.0.1-security:
   resolved "https://registry.yarnpkg.com/fs/-/fs-0.0.1-security.tgz#8a7bd37186b6dddf3813f23858b57ecaaf5e41d4"
   integrity sha512-3XY9e1pP0CVEUCdj5BmfIZxRBTSDycnbqhIOGec9QYtmVH2fbLpj86CFWkrNOkt/Fvty4KZG5lTglL9j/gJ87w==
 
+ts-pattern@3.0.1-next.3:
+  version "3.0.1-next.3"
+  resolved "https://registry.yarnpkg.com/ts-pattern/-/ts-pattern-3.0.1-next.3.tgz#79f02fc220453539c486635866e23d1e9669cd28"
+  integrity sha512-LW9WZ6Ueg/nowklcJo3EwzGUvNULKplFsUzt8qjbXMz7sG93RbJVPB3fhWFYmLkpZgotRY+V3Sb3w6yIE3RTvw==
+
 typescript@^4.9.3:
   version "4.9.3"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.9.3.tgz#3aea307c1746b8c384435d8ac36b8a2e580d85db"
