@@ -24,7 +24,7 @@ const solution: Problem<number[][],number> = {
         
         const lines: string[] = rawInput.split('\n')
 
-        return fold(lines,[[]] as number[][],(el,prev): number[][] => {
+        return fold(lines,[[]] as number[][],(prev,el): number[][] => {
             if(el.trim() == ""){
                 prev.push([])
                 return prev
