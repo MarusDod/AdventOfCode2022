@@ -34,19 +34,6 @@ const solution: Problem<Array<string>,number> = {
     },
 
     solve1(rounds){
-        console.log(rounds
-            .map(x => [x.substring(0,x.length/2),x.substring(x.length/2)])
-            .map(([first,second]) => {
-                for(let i = 0;i < first.length; i++){
-                    const c = first[i]
-
-                    if(second.includes(c)){
-                        return getCharCount(c.charCodeAt(0))
-                    }
-                }
-
-                throw new Error('')
-            }))
         return rounds
             .map(([first,second]) => {
                 for(let i = 0;i < first.length; i++){
@@ -64,9 +51,6 @@ const solution: Problem<Array<string>,number> = {
     },
 
     solve2(rounds){
-        console.log(fold(rounds,{index: 0,lines: []},threeLineReducer)
-            .lines)
-
         return fold(rounds,{index: 0,lines: []},threeLineReducer)
             .lines
             .map(groups => {

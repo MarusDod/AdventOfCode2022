@@ -2,11 +2,13 @@ import { readFileSync } from 'fs'
 import solution1 from './days/1'
 import solution2 from './days/2'
 import solution3 from './days/3'
+import solution4 from './days/4'
 
 const days = [
     solution1,
     solution2,
     solution3,
+    solution4,
 ]
 
 function execute(day: number, part: number = 1){
