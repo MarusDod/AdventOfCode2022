@@ -1,4 +1,7 @@
 {
+  "scripts": {
+      "watch": "tsc -w"
+  },
   "devDependencies": {
     "@types/node": "^18.11.10",
     "typescript": "^4.9.3"
