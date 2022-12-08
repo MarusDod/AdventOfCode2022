@@ -13,6 +13,16 @@ export const fold = <T,A>(array: Array<T>,base: A,fn: (prev: A,el: T) => A): A =
     return base
 }
 
+export const takeWhile = <T>(array: Array<T>,callback: (x: T) => boolean): Array<T> => 
+    array.reduce((prev,cur) => prev.cont && callback(cur) ? {
+            accum: prev.accum.concat([cur]),
+            cont: true
+        }
+        : {
+            accum: prev.accum,
+            cont: false
+        },{cont: true,accum: [] as T[]}).accum
+
 export const zip: <T,U>(array1: Array<T>,array2: Array<U>) => Array<[T,U]> = (arr1,arr2) => {
     return arr1.map((a,index) => [a,arr2[index]])
 }
