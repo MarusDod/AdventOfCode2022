@@ -1,7 +1,7 @@
 import { readFileSync } from "fs"
 import Problem from "./problem"
 
-export const fold = <T,A>(array: Array<T>,base: A,fn: (prev: A,el: T) => A): A => {
+export const fold = <T,A = T>(array: Array<T>,base: A,fn: (prev: A,el: T) => A): A => {
     array.forEach(ar => {
         const res = fn(base,ar)
 
