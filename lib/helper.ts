@@ -1,4 +1,3 @@
-import { readFileSync } from "fs"
 import Problem from "./problem"
 
 export const fold = <T,A = T>(array: Array<T>,base: A,fn: (prev: A,el: T) => A): A => {
@@ -11,6 +10,29 @@ export const fold = <T,A = T>(array: Array<T>,base: A,fn: (prev: A,el: T) => A):
     })
 
     return base
+}
+
+export function* iterate <T>(fn: (X: T) => T,x: T): IterableIterator<T> {
+    let val = x
+
+    while(true){
+        x = fn(x)
+
+        yield x
+    }
+}
+
+export function scanl <T,B = T>(arr: T[],base: B,fn: (prev: B,cur: T) => B): B[] {
+    const ret: B[] = []
+
+    fold(arr,base,(prev,cur) => {
+        const res = fn(prev,cur)
+        ret.push(res)
+
+        return res
+    })
+
+    return ret
 }
 
 export const takeWhile = <T>(array: Array<T>,callback: (x: T) => boolean): Array<T> => 
