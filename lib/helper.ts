@@ -12,14 +12,26 @@ export const fold = <T,A = T>(array: Array<T>,base: A,fn: (prev: A,el: T) => A):
     return base
 }
 
-export function* iterate <T>(fn: (X: T) => T,x: T): IterableIterator<T> {
-    let val = x
+export function* iterate <T>(fn: (X: T) => T,x: T,times?: number): IterableIterator<T> {
 
-    while(true){
-        x = fn(x)
+    if(times){
+        while(times-- !== 0){
+            x = fn(x)
 
-        yield x
+            yield x
+        }
     }
+
+    else{
+        while(true){
+            x = fn(x)
+
+            yield x
+        }
+    }
+
+
+    return
 }
 
 export function scanl <T,B = T>(arr: T[],base: B,fn: (prev: B,cur: T) => B): B[] {
