@@ -46,8 +46,8 @@ const solution: Problem<Array<[Packet,Packet]>,number> = {
     },
 
     solve2(pairs){
-        let el1 = [[2]]
-        let el2 = [[6]]
+        const el1 = [[2]]
+        const el2 = [[6]]
 
         return [...pairs.flat(),el1,el2]
             .sort((a,b) => compare(a,b))

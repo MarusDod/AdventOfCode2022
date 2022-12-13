@@ -1,4 +1,4 @@
-import { fold, iterate, scanl, takeWhile, wrapSolution } from "../../lib/helper"
+import { wrapSolution } from "../../lib/helper"
 import Problem from "../../lib/problem"
 
 const myPositionLetter = 'S'.charCodeAt(0) - 97
@@ -9,7 +9,7 @@ type Square = [number,number]
 class Grid {
     private openSet: Array<Square>
     private closedSet: Array<Square>
-    private costMap: Map<String,number>
+    private costMap: Map<string,number>
     private initialPosition: Square
     private destinationPosition: Square
 
@@ -35,8 +35,8 @@ class Grid {
             if(this.openSet.length === 0)
                 break;
 
-            let cur = this.openSet.shift()!
-            let cost = this.costMap.get(JSON.stringify(cur))!
+            const cur = this.openSet.shift()!
+            const cost = this.costMap.get(JSON.stringify(cur))!
 
             const adj = this.findAdjacent(cur)
 
@@ -44,8 +44,8 @@ class Grid {
             .filter(a => !this.closedSet.find(x => this.compareSquare(a,x)))
             .filter(s => this.getIndex(s) - this.getIndex(cur) <= 1)
             .forEach(a => {
-                let oldCost = this.costMap.get(JSON.stringify(a))
-                let newcost = cost + 1
+                const oldCost = this.costMap.get(JSON.stringify(a))
+                const newcost = cost + 1
 
                 if(!oldCost) {
                     this.openSet.push(a)
@@ -74,8 +74,8 @@ class Grid {
     findLetter(letter: number): Square[]{
         const res: Square[] = []
 
-        for(let [i,row] of this.grid.entries()){
-            for(let [j,col] of row.entries()){
+        for(const [i,row] of this.grid.entries()){
+            for(const [j,col] of row.entries()){
                 if(col === letter)
                     res.push([i,j])
             }

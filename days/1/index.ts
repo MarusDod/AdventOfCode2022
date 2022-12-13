@@ -1,4 +1,3 @@
-import { readFileSync } from "fs"
 import { fold, wrapSolution } from "../../lib/helper"
 import Problem from "../../lib/problem"
 

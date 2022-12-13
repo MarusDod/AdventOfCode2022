@@ -35,6 +35,7 @@ const solution: Problem<Array<string>,number> = {
 
     solve1(rounds){
         return rounds
+            .map(r => [r.slice(0,r.length / 2),r.slice(r.length / 2)])
             .map(([first,second]) => {
                 for(let i = 0;i < first.length; i++){
                     const c = first[i]

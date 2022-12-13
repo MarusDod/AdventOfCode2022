@@ -1,4 +1,4 @@
-import { fold, iterate, scanl, takeWhile, wrapSolution } from "../../lib/helper"
+import { iterate, wrapSolution } from "../../lib/helper"
 import Problem from "../../lib/problem"
 
 type Monkey = {
@@ -10,7 +10,7 @@ type Monkey = {
 }
 
 
-const monkeyBusiness = (monkeys: Monkey[],worried: boolean = false): Monkey[] => {
+const monkeyBusiness = (monkeys: Monkey[],worried = false): Monkey[] => {
     monkeys.forEach(m => {
         m.items = m.items.map(i => m.operation(i))
         m.inspected += m.items.length
@@ -60,7 +60,7 @@ const solution: Problem<Monkey[],number> = {
     solve1(monkeys){
         const iter = iterate(monkeyBusiness,monkeys,20)
 
-        while(!iter.next().done){}
+        while(!iter.next().done);
 
         return monkeys
             .map(x => x.inspected)

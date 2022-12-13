@@ -77,7 +77,7 @@ const cdBuilder: StateBuilder = state => {
 
     const line = state.lines.shift() as CdOutput
 
-    let path: string[] = line.arg === '/' ? [] : line.arg === '..' ? state.currentPath.slice(0,-1) : state.currentPath.concat([line.arg])
+    const path: string[] = line.arg === '/' ? [] : line.arg === '..' ? state.currentPath.slice(0,-1) : state.currentPath.concat([line.arg])
 
     return {
         lines: state.lines,
@@ -106,7 +106,7 @@ const lsBuilder: StateBuilder = state => {
 
     state.lines.shift()
 
-    while(fileBuilder(state) !== null) {}
+    while(fileBuilder(state) !== null);
 
     return state
 }
@@ -166,7 +166,7 @@ const solution: Problem<FileTree,number> = {
                     return {type: 'dir',dirname: args[1]}
                 }
 
-                if(parseInt(args[0]) != NaN){
+                if(!isNaN(parseInt(args[0]))){
                     return {
                         type: 'file',
                         size: parseInt(args[0]),

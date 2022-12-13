@@ -29,7 +29,7 @@ const days = [
     solution13,
 ]
 
-function execute(day: number, part: number = 1){
+function execute(day: number, part = 1){
     const solution = days[day - 1]
 
     const data = readFileSync(`./input/${day}.txt`).toString()

@@ -1,4 +1,4 @@
-import { fold, scanl, takeWhile, wrapSolution } from "../../lib/helper"
+import { fold, scanl, wrapSolution } from "../../lib/helper"
 import Problem from "../../lib/problem"
 
 type AddX = {
@@ -51,16 +51,15 @@ const solution: Problem<Instruction[],number> = {
         const cycles = scanl(ins,
             baseCpuState,(prev,cur) => {
             switch(cur.type){
-                case 'Add':
+                case 'Add': {
                     const adder = cur as AddX
 
                     return {
                         cycle: prev.cycle+1,
                         X: prev.X + adder.arg,
                     }
+                }
                 case 'Noop':
-                    const nooper = cur as Noop
-
                     return {
                         ...prev,
                         cycle: prev.cycle+1,
@@ -97,15 +96,15 @@ const solution: Problem<Instruction[],number> = {
             }
 
             switch(cur.type){
-                case 'Add':
+                case 'Add': {
                     const adder = cur as AddX
 
                     return {
                         cycle: cpu.cycle+1,
                         X: cpu.X + adder.arg,
                     }
+                }
                 case 'Noop':
-                    const nooper = cur as Noop
 
                     return {
                         ...cpu,
