@@ -57,9 +57,8 @@ export const takeWhile = <T>(array: Array<T>,callback: (x: T) => boolean): Array
             cont: false
         },{cont: true,accum: [] as T[]}).accum
 
-export const zip: <T,U>(array1: Array<T>,array2: Array<U>) => Array<[T,U]> = (arr1,arr2) => {
-    return arr1.map((a,index) => [a,arr2[index]])
-}
+export const zip: <T,U>(array1: Array<T>,array2: Array<U>) => Array<[T,U]> = (arr1,arr2) =>
+    arr1.slice(0,arr2.length).map((a,index) => [a,arr2[index]])
 
 export const wrapSolution: <T,R,S>(solution: Problem<T,R,S>) => (data: string,part: number) => void = solution => (data,part) => {
     const input = solution.getData(data)
