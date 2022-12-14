@@ -47,6 +47,43 @@ export function scanl <T,B = T>(arr: T[],base: B,fn: (prev: B,cur: T) => B): B[]
     return ret
 }
 
+export const minimum = (m: number,n: number): number => m < n ? m : n
+
+export const maximum = (m: number,n: number): number => m > n ? m : n
+
+export const range = (min: number,max: number): number[] =>
+    Array.from({length: Math.abs(max - min) + 1},(_,index) => minimum(min,max) + index)
+
+export const chunks = <T>(arr: T[],num: number): T[][] => {
+    const res: T[][] = []
+
+    arr.forEach((a,index) => {
+        if(index % num === 0) {
+            res.push([])
+        }
+
+        const chunk = res[res.length - 1]
+
+        chunk.push(a)
+    })
+
+    return res
+}
+
+export const nub = <T>(arr: T[],comp: (x: T,y: T) => boolean): T[] => {
+    const filterList: T[] = []
+
+    return arr.filter(a => {
+        if(!!filterList.find(val => comp(val,a))){
+            return false
+        }
+
+        filterList.push(a)
+
+        return true
+    })
+}
+
 export const takeWhile = <T>(array: Array<T>,callback: (x: T) => boolean): Array<T> => 
     array.reduce((prev,cur) => prev.cont && callback(cur) ? {
             accum: prev.accum.concat([cur]),
@@ -57,8 +94,30 @@ export const takeWhile = <T>(array: Array<T>,callback: (x: T) => boolean): Array
             cont: false
         },{cont: true,accum: [] as T[]}).accum
 
-export const zip: <T,U>(array1: Array<T>,array2: Array<U>) => Array<[T,U]> = (arr1,arr2) =>
-    arr1.slice(0,arr2.length).map((a,index) => [a,arr2[index]])
+export const dropWhile = <T>(array: Array<T>,callback: (x: T) => boolean): Array<T> => 
+    array.reduce((prev,cur) => prev.cont && callback(cur) ? {
+            accum: prev.accum,
+            cont: true
+        }
+        : {
+            accum: prev.accum.concat([cur]),
+            cont: false 
+        },{cont: true,accum: [] as T[]}).accum
+
+export const zip: <T,U>(array1: Array<T>,array2: Array<U>,cull?: boolean) => Array<[T,U]> = (arr1,arr2,cull = true) =>
+    cull ? 
+        arr1.slice(0,arr2.length).map((a,index) => [a,arr2[index]])
+        : range(
+            0
+            ,maximum(arr1.length,arr2.length))
+          .map(function(this: {last},i: number){
+            this.last = [arr1[i] === undefined ? this.last[0] : arr1[i],arr2[i] === undefined ? this.last[1] : arr2[i]]
+
+            return this.last
+        },{last: [undefined,undefined]})
+
+export const stagger = <T>(arr: T[]): [T,T][] => zip(arr,arr.slice(1))
+
 
 export const wrapSolution: <T,R,S>(solution: Problem<T,R,S>) => (data: string,part: number) => void = solution => (data,part) => {
     const input = solution.getData(data)
@@ -72,3 +131,6 @@ export const wrapSolution: <T,R,S>(solution: Problem<T,R,S>) => (data: string,pa
             break;
     }
 }
+
+//console.log(stagger([[1,10],[3,10],[3,12]]))
+//console.log(nub([[498,6],[498,7],[498,6]],(x,y) => x[0] === y[0] && x[1] === y[1]))
