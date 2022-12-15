@@ -13,6 +13,7 @@ import solution11 from './days/11'
 import solution12 from './days/12'
 import solution13 from './days/13'
 import solution14 from './days/14'
+import solution15 from './days/15'
 
 const days = [
     solution1,
@@ -29,6 +30,7 @@ const days = [
     solution12,
     solution13,
     solution14,
+    solution15,
 ]
 
 function execute(day: number, part = 1){
