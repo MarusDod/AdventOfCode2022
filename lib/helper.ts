@@ -13,7 +13,6 @@ export const fold = <T,A = T>(array: Array<T>,base: A,fn: (prev: A,el: T) => A):
 }
 
 export function* iterate <T>(fn: (X: T) => T,x: T,times?: number): IterableIterator<T> {
-
     if(times){
         while(times-- !== 0){
             x = fn(x)
@@ -30,8 +29,22 @@ export function* iterate <T>(fn: (X: T) => T,x: T,times?: number): IterableItera
         }
     }
 
-
     return
+}
+
+export function* cycle <T>(it: T[]): IterableIterator<T> {
+    if(it.length === 0)
+        return
+
+    let index = 0
+
+    while(true){
+        if(index === it.length)
+            index = 0
+
+        yield it[index++]
+    }
+
 }
 
 export function scanl <T,B = T>(arr: T[],base: B,fn: (prev: B,cur: T) => B): B[] {
