@@ -47,6 +47,14 @@ export function scanl <T,B = T>(arr: T[],base: B,fn: (prev: B,cur: T) => B): B[]
     return ret
 }
 
+export function intersection<T extends number | string | boolean | null | undefined>(arr1: T[],arr2: T[]): T[] {
+    return arr1.filter((a,index) => arr2.includes(a))
+}
+
+export function includesAny<T extends number | string | boolean | null | undefined>(arr1: T[],arr2: T[]): boolean {
+    return !!arr1.find(a => arr2.indexOf(a) !== -1)
+}
+
 export const minimum = (m: number,n: number): number => m < n ? m : n
 
 export const maximum = (m: number,n: number): number => m > n ? m : n
@@ -134,3 +142,4 @@ export const wrapSolution: <T,R,S>(solution: Problem<T,R,S>) => (data: string,pa
 
 //console.log(stagger([[1,10],[3,10],[3,12]]))
 //console.log(nub([[498,6],[498,7],[498,6]],(x,y) => x[0] === y[0] && x[1] === y[1]))
+//console.log(intersection([1,2,3],[4,5,6]))
