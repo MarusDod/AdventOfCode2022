@@ -55,7 +55,7 @@ class Tetris {
     private extraHeight: number
 
     constructor(){
-        this.board = Array.from({length: 2000},
+        this.board = Array.from({length: 1_010_000},
             () => Array.from({length: 7},
                 () => '.'))
 
@@ -119,15 +119,17 @@ class Tetris {
 
                 currentSquare = [highest + 4,2]
                 fallenRocks++
-                console.log(fallenRocks)
 
-                if(highest - this.extraHeight > 1500){
-                    this.board = this.board.slice(1000).concat(
-                        Array.from({length: 1000},
+                if(fallenRocks % 1_000_000 === 0)
+                    console.log(fallenRocks)
+
+                if(highest - this.extraHeight > 1_001_000){
+                    this.board = this.board.slice(1_000_000).concat(
+                        Array.from({length: 1_000_000},
                             () => Array.from({length: 7},
                                 () => '.')))
 
-                    this.extraHeight += 1000
+                    this.extraHeight += 1_000_000
                 }
 
                 rock = rocksIter.next().value
