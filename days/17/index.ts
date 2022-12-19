@@ -11,6 +11,7 @@ type Movement = 'left' | 'right'
 
 type AnyMovement = 'down' | Movement
 
+
 const moveSquare = <M extends AnyMovement>(m: M,s: Square): Square => {
     switch(m){
         case 'down':
@@ -51,15 +52,10 @@ const rocks: Rock[] = [
 ]
 
 class Tetris {
-    private board: Unit[][]
-    private extraHeight: number
+    private board: Set<string>
 
     constructor(){
-        this.board = Array.from({length: 1_010_000},
-            () => Array.from({length: 7},
-                () => '.'))
-
-        this.extraHeight = 0
+        this.board = new Set()
     }
 
     canMove(square: Square,rock: Rock): boolean {
@@ -69,7 +65,7 @@ class Tetris {
 
         for(let i = 0;i < rock.length; i++){
             for(let j = 0;j < rock[0].length; j++){
-                if((this.board[square[0] + i - this.extraHeight][square[1] + j] === '#' || this.board[square[0] + i - this.extraHeight][square[1] + j] === '@') && rock[i][j] === '#' || j + square[1] >= 7){
+                if((this.board.has(JSON.stringify([square[0] + i,square[1] + j])) || this.board.has(JSON.stringify([square[0] + i,square[1] + j]))) && rock[i][j] === '#' || j + square[1] >= 7){
                     return false
                 }
             }
@@ -78,75 +74,103 @@ class Tetris {
         return true
     }
 
-    paint(square: Square, rock: Rock): number {
-        let high = 0
+    getBoardHeight(): number {
+        return Array.from(this.board.values())
+            .map(b => parseInt(JSON.parse(b)[0]))
+            .reduce((prev,cur) => cur > prev ? cur : prev,0)
+    }
 
-
+    paint(square: Square, rock: Rock): void {
         for(let i = 0;i < rock.length; i++){
             for(let j = 0;j < rock[0].length; j++){
                 if(rock[i][j] === '#'){
-                    this.board[square[0] + i - this.extraHeight][square[1] + j] = '@'
-
-                    high = i
+                    this.board.add(JSON.stringify([square[0] + i,square[1] + j]))
                 }
             }
         }
-
-        return high + square[0]
     }
 
     play(moves: Movement[],maxFallen: number){
         let currentSquare: Square = [4,2]
-        let highest = 0
+        let extraHeight = 0
 
         let rocksIter = cycle(rocks)
         let movesIter = cycle(moves)
         let fallenRocks = 0
 
-        let rock: Rock = rocksIter.next().value
+        const states: Map<string,{
+            height: number,
+            numPieces: number
+        }> = new Map()
+
+        let move: Movement = 'left'
 
         while(fallenRocks < maxFallen){
-            const downPosition = moveSquare('down',currentSquare)
+            const rock = rocksIter.next().value
+            let highest = this.getBoardHeight()
+            currentSquare = [highest+ 4,2]
 
-            if(this.canMove(downPosition,rock)){
-                currentSquare = downPosition
-            }
-            else {
-                const high = this.paint(currentSquare,rock)
+            while(true){
+                move = movesIter.next().value
 
-                if(high > highest)
-                    highest = high
+                const jetPosition = moveSquare(move,currentSquare)
 
-                currentSquare = [highest + 4,2]
-                fallenRocks++
-
-                if(fallenRocks % 1_000_000 === 0)
-                    console.log(fallenRocks)
-
-                if(highest - this.extraHeight > 1_001_000){
-                    this.board = this.board.slice(1_000_000).concat(
-                        Array.from({length: 1_000_000},
-                            () => Array.from({length: 7},
-                                () => '.')))
-
-                    this.extraHeight += 1_000_000
+                if(this.canMove(jetPosition,rock)) {
+                    currentSquare = jetPosition
                 }
 
-                rock = rocksIter.next().value
+                const downPosition = moveSquare('down',currentSquare)
+
+                if(this.canMove(downPosition,rock)){
+                    currentSquare = downPosition
+                }
+                else {
+                    break;
+                }
             }
 
-            const move: Movement = movesIter.next().value
+            this.paint(currentSquare,rock)
 
-            const jetPosition = moveSquare(move,currentSquare)
+            let state = JSON.stringify([move,rocks.findIndex(r => r === rock)])
 
-            if(this.canMove(jetPosition,rock)) {
-                currentSquare = jetPosition
+            for(let y = highest; y >= highest - 10; y--){
+                let bitmap = ""
+                for(let x = 0; x < 7; x++){
+                    bitmap += this.board.has(JSON.stringify([y,x])) ? 1 : 0
+                }
+                state += parseInt(bitmap,2) + ','
             }
 
+
+            if(states.has(state)){
+                const prevState = states.get(state)!
+
+                const heightDiff = this.getBoardHeight() - prevState!.height
+                const pieceDiff = fallenRocks - prevState!.numPieces
+
+                const rounds = Math.floor((maxFallen - prevState.numPieces) / pieceDiff) - 1
+
+                if(rounds > 0){
+
+                    extraHeight += rounds * heightDiff
+                    fallenRocks += rounds * pieceDiff
+
+                    console.log({highest,heightDiff,pieceDiff,fallenRocks,maxFallen,rounds,extraHeight})
+                }
+            }
+            else{
+                states.set(JSON.stringify(state),{
+                    height: this.getBoardHeight(),
+                    numPieces: fallenRocks
+                })
+            }
+
+            fallenRocks++
         }
 
         //this.board.map(x => x.join('')).reverse().forEach(x => console.log(x))
-        return highest + 1
+        console.log(extraHeight)
+        return extraHeight + this.getBoardHeight() + 1
     }
 }
 
@@ -159,7 +183,7 @@ const solution: Problem<Movement[],number> = {
     },
 
     solve1(moves){
-        return new Tetris().play(moves,2023)
+        return new Tetris().play(moves,2022)
     },
 
     solve2(moves){

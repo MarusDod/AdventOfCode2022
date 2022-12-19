@@ -60,8 +60,12 @@ export function scanl <T,B = T>(arr: T[],base: B,fn: (prev: B,cur: T) => B): B[]
     return ret
 }
 
-export function intersection<T extends number | string | boolean | null | undefined>(arr1: T[],arr2: T[]): T[] {
-    return arr1.filter((a,index) => arr2.includes(a))
+export function intersection<T>(arr1: T[],arr2: T[],comp: (x:T,y:T) => boolean = (x,y) => x==y): T[] {
+    return arr1.filter((a,index) => arr2.find(b => comp(a,b)))
+}
+
+export function leftsection<T>(arr1: T[],arr2: T[],comp: (x:T,y:T) => boolean = (x,y) => x==y): T[] {
+    return arr1.filter((a,index) => !arr2.find(b => comp(a,b)))
 }
 
 export function includesAny<T extends number | string | boolean | null | undefined>(arr1: T[],arr2: T[]): boolean {
@@ -90,6 +94,9 @@ export const chunks = <T>(arr: T[],num: number): T[][] => {
 
     return res
 }
+
+export const sum = (arr: number[]): number => 
+    arr.reduce((prev,cur) => prev+cur,0)
 
 export const nub = <T>(arr: T[],comp: (x: T,y: T) => boolean): T[] => {
     const filterList: T[] = []
