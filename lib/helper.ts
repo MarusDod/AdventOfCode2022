@@ -1,8 +1,8 @@
 import Problem from "./problem"
 
-export const fold = <T,A = T>(array: Array<T>,base: A,fn: (prev: A,el: T) => A): A => {
-    array.forEach(ar => {
-        const res = fn(base,ar)
+export const fold = <T,A = T>(array: Array<T>,base: A,fn: (prev: A,el: T,index: number) => A): A => {
+    array.forEach((ar,index) => {
+        const res = fn(base,ar,index)
 
         if(res){
             base = res
@@ -76,6 +76,8 @@ export const minimum = (m: number,n: number): number => m < n ? m : n
 
 export const maximum = (m: number,n: number): number => m > n ? m : n
 
+export const mod = (m: number,n: number): number => ((m % n) + n) % n;
+
 export const range = (min: number,max: number): number[] =>
     Array.from({length: Math.abs(max - min) + 1},(_,index) => minimum(min,max) + index)
 
@@ -145,7 +147,6 @@ export const zip: <T,U>(array1: Array<T>,array2: Array<U>,cull?: boolean) => Arr
         },{last: [undefined,undefined]})
 
 export const stagger = <T>(arr: T[]): [T,T][] => zip(arr,arr.slice(1))
-
 
 export const wrapSolution: <T,R,S>(solution: Problem<T,R,S>) => (data: string,part: number) => void = solution => (data,part) => {
     const input = solution.getData(data)

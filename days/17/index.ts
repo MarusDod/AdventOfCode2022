@@ -95,7 +95,7 @@ class Tetris {
         let extraHeight = 0
 
         let rocksIter = cycle(rocks)
-        let movesIter = cycle(moves)
+        let movesIter = cycle(moves.map((e,index) => ({move: e,moveIndex: index})))
         let fallenRocks = 0
 
         const states: Map<string,{
@@ -103,7 +103,7 @@ class Tetris {
             numPieces: number
         }> = new Map()
 
-        let move: Movement = 'left'
+        let [move,moveIndex]: [Movement,number] = ['left',-1]
 
         while(fallenRocks < maxFallen){
             const rock = rocksIter.next().value
@@ -111,7 +111,10 @@ class Tetris {
             currentSquare = [highest+ 4,2]
 
             while(true){
-                move = movesIter.next().value
+                let a = movesIter.next().value
+
+                move = a.move
+                moveIndex = a.moveIndex
 
                 const jetPosition = moveSquare(move,currentSquare)
 
@@ -131,16 +134,17 @@ class Tetris {
 
             this.paint(currentSquare,rock)
 
-            let state = JSON.stringify([move,rocks.findIndex(r => r === rock)])
+            let rows = ''
 
-            for(let y = highest; y >= highest - 10; y--){
-                let bitmap = ""
+            /*for(let y = highest; y >= highest - 10; y--){
+                let bitmap = ''
                 for(let x = 0; x < 7; x++){
                     bitmap += this.board.has(JSON.stringify([y,x])) ? 1 : 0
                 }
-                state += parseInt(bitmap,2) + ','
+                rows += parseInt(bitmap,2) + ','
             }
 
+            let state = `${moveIndex},${rocks.findIndex(r => r === rock)},${rows}`
 
             if(states.has(state)){
                 const prevState = states.get(state)!
@@ -154,8 +158,6 @@ class Tetris {
 
                     extraHeight += rounds * heightDiff
                     fallenRocks += rounds * pieceDiff
-
-                    console.log({highest,heightDiff,pieceDiff,fallenRocks,maxFallen,rounds,extraHeight})
                 }
             }
             else{
@@ -163,12 +165,11 @@ class Tetris {
                     height: this.getBoardHeight(),
                     numPieces: fallenRocks
                 })
-            }
+            }*/
 
             fallenRocks++
         }
 
-        //this.board.map(x => x.join('')).reverse().forEach(x => console.log(x))
         console.log(extraHeight)
         return extraHeight + this.getBoardHeight() + 1
     }
