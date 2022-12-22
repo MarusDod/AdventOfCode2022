@@ -1,13 +1,10 @@
 import { getRandomValues } from "crypto"
-import { cycle, dropWhile, fold, includesAny, intersection, iterate, leftsection, maximum, minimum, nub, range, scanl, stagger, sum, takeWhile, wrapSolution, zip } from "../../lib/helper"
+import { cycle, dropWhile, fold, includesAny, intersection, iterate, leftsection, maximum, minimum, nub, product, range, scanl, stagger, sum, takeWhile, wrapSolution, zip } from "../../lib/helper"
 import Problem from "../../lib/problem"
 
 type Material = 'ore' | 'clay' | 'geode' | 'obsidian'
 
-type Cost = Array<{
-    material: Material,
-    n: number
-}>
+type Cost = Record<Material,number>
 
 type BluePrint = {
     index: number,
@@ -31,101 +28,134 @@ type Rocks = {
     geode: number,
 }
 
-let maxGeodes = 0
+class MineGeodes {
+    initialRocks: Rocks;
+    initialRobots: Robots;
 
-function mineGeodes(print: BluePrint) : number {
-    maxGeodes = 0
+    maxGeodes: number;
+    maxOre: number;
+    
+    constructor(private blueprint: BluePrint,private maxMinutes: number) {
+        this.maxGeodes = 0
 
-    forkGeodes(print,1,{
-        ore: 0,
-        clay: 0,
-        obsidian: 0,
-        geode: 0
-    },{
-        oreCollectingRobots: 1,
-        clayCollectingRobots: 0,
-        obsidianCollectingRobots: 0,
-        geodeCollectingRobots: 0
-    },[])
+        this.initialRobots = {
+            oreCollectingRobots: 1,
+            clayCollectingRobots: 0,
+            obsidianCollectingRobots: 0,
+            geodeCollectingRobots: 0
+        }
 
-    console.log(maxGeodes)
+        this.initialRocks = {
+            ore: 0,
+            clay: 0,
+            obsidian: 0,
+            geode: 0
+        }
 
-    return maxGeodes * print.index
+        this.maxOre = Math.max(
+            blueprint.clayRobotCost['ore'],
+            blueprint.geodeCost['ore'],
+            blueprint.obsidianCost['ore'],
+            blueprint.oreRobotCost['ore'],)
+    }
+
+    mine(): number{
+        this.forkGeodes(1,this.initialRocks,this.initialRobots)
+
+        console.log(this.maxGeodes)
+
+        return this.maxGeodes
+    }
+
+    incrementRocks(rock: Rocks,robots: Robots): Rocks {
+        return {
+            ore: rock.ore + robots.oreCollectingRobots,
+            clay: rock.clay + robots.clayCollectingRobots,
+            obsidian: rock.obsidian + robots.obsidianCollectingRobots,
+            geode: rock.geode + robots.geodeCollectingRobots
+    }}
+
+    forkGeodes(minutes: number,rocks: Rocks,robots: Robots): void {
+        if(minutes === this.maxMinutes){
+            this.maxGeodes = Math.max(this.maxGeodes,rocks.geode)
+            return
+        }
+
+        const incRocks = this.incrementRocks(rocks,robots)
+
+        const remaining = this.maxMinutes - minutes
+
+        const nextGeodes = sum(Array.from(iterate((x => x+1),0,remaining))) + (remaining - 1) * robots.geodeCollectingRobots
+
+        if(incRocks.geode + nextGeodes <= this.maxGeodes){
+            return
+        }
+
+
+        const canBuildGeodeBot = rocks.ore >= this.blueprint.geodeCost['ore'] && rocks.obsidian >= this.blueprint.geodeCost['obsidian']
+        const canBuildObsidianBot = rocks.ore >= this.blueprint.obsidianCost['ore'] && rocks.clay >= this.blueprint.obsidianCost['clay']
+        const canBuildClayBot = rocks.ore >= this.blueprint.clayRobotCost['ore']
+        const canBuildOreBot = rocks.ore >= this.blueprint.oreRobotCost['ore']
+
+        const buildGeodeBot = () => 
+                this.forkGeodes(minutes+1,{
+                    ...incRocks,
+                    ore: incRocks.ore - this.blueprint.geodeCost['ore'],
+                    obsidian: incRocks.obsidian - this.blueprint.geodeCost['obsidian']
+                },{
+                    ...robots,
+                    geodeCollectingRobots: robots.geodeCollectingRobots+1
+                })
+
+        const buildObsidianBot = () => 
+                this.forkGeodes(minutes+1,{
+                    ...incRocks,
+                    ore: incRocks.ore - this.blueprint.obsidianCost['ore'],
+                    clay: incRocks.clay - this.blueprint.obsidianCost['clay']
+                },{
+                    ...robots,
+                    obsidianCollectingRobots: robots.obsidianCollectingRobots+1
+                })
+
+        const buildNothing = () => 
+            this.forkGeodes(minutes+1,{...incRocks},{...robots})
+
+        const buildClayBot = () => 
+                this.forkGeodes(minutes+1,{
+                    ...incRocks,
+                    ore: incRocks.ore - this.blueprint.clayRobotCost['ore'],
+                },{
+                    ...robots,
+                    clayCollectingRobots: robots.clayCollectingRobots+1
+                })
+        const buildOreBot = () => 
+                this.forkGeodes(minutes+1,{
+                    ...incRocks,
+                    ore: incRocks.ore - this.blueprint.oreRobotCost['ore'],
+                },{
+                    ...robots,
+                    oreCollectingRobots: robots.oreCollectingRobots+1
+                })
+
+        if(canBuildGeodeBot){
+            buildGeodeBot()
+            return
+        }
+        if(canBuildObsidianBot && this.blueprint.geodeCost['obsidian'] > robots.obsidianCollectingRobots){
+            buildObsidianBot()
+        }
+        if(canBuildClayBot && this.blueprint.obsidianCost['clay'] > robots.clayCollectingRobots){
+            buildClayBot()
+        }
+        if(canBuildOreBot && robots.oreCollectingRobots < this.maxOre){
+            buildOreBot()
+        }
+        
+        buildNothing()
+    }
 }
 
-const incrementRocks = (rock: Rocks,robots: Robots): Rocks => ({
-    ore: rock.ore + robots.oreCollectingRobots,
-    clay: rock.clay + robots.clayCollectingRobots,
-    obsidian: rock.obsidian + robots.obsidianCollectingRobots,
-    geode: rock.geode + robots.geodeCollectingRobots
-})
 
-function forkGeodes(print: BluePrint,minutes: number,rocks: Rocks,robots: Robots,path: string[]): void {
-    if(minutes === 25){
-        maxGeodes = Math.max(maxGeodes,rocks.geode)
-        return
-    }
-
-    const incRocks = incrementRocks(rocks,robots)
-
-    const canBuildGeodeBot = rocks.ore >= print.geodeCost[0].n && rocks.obsidian >= print.geodeCost[1].n
-    const canBuildObsidianBot = rocks.ore >= print.obsidianCost[0].n && rocks.clay >= print.obsidianCost[1].n
-    const canBuildClayBot = rocks.ore >= print.clayRobotCost[0].n
-    const canBuildOreBot = rocks.ore >= print.oreRobotCost[0].n
-
-    const buildGeodeBot = () => 
-            forkGeodes(print,minutes+1,{
-                ...incRocks,
-                ore: incRocks.ore - print.geodeCost[0].n,
-                obsidian: incRocks.obsidian - print.geodeCost[1].n
-            },{
-                ...robots,
-                geodeCollectingRobots: robots.geodeCollectingRobots+1
-            },[...path,'G'])
-
-    const buildObsidianBot = () => 
-            forkGeodes(print,minutes+1,{
-                ...incRocks,
-                ore: incRocks.ore - print.obsidianCost[0].n,
-                clay: incRocks.clay - print.obsidianCost[1].n
-            },{
-                ...robots,
-                obsidianCollectingRobots: robots.obsidianCollectingRobots+1
-            },[...path,'O'])
-
-    const buildClayBot = () => 
-            forkGeodes(print,minutes+1,{
-                ...incRocks,
-                ore: incRocks.ore - print.clayRobotCost[0].n,
-            },{
-                ...robots,
-                clayCollectingRobots: robots.clayCollectingRobots+1
-            },[...path,'C'])
-    const buildOreBot = () => 
-            forkGeodes(print,minutes+1,{
-                ...incRocks,
-                ore: incRocks.ore - print.oreRobotCost[0].n,
-            },{
-                ...robots,
-                oreCollectingRobots: robots.oreCollectingRobots+1
-            },[...path,'R'])
-
-    if(canBuildGeodeBot){
-        buildGeodeBot()
-    }
-
-    if(canBuildObsidianBot){
-        buildObsidianBot()
-    }
-    if(canBuildClayBot && rocks.clay < print.obsidianCost[1].n){
-        buildClayBot()
-    }
-    if(canBuildOreBot && ( rocks.ore < print.obsidianCost[0].n || rocks.ore < print.geodeCost[0].n)){
-        buildOreBot()
-    }
-    else
-        forkGeodes(print,minutes+1,{...incRocks},{...robots},[...path,'N'])
-}
 
 const solution: Problem<BluePrint[],number> = {
     getData(rawInput){
@@ -134,21 +164,25 @@ const solution: Problem<BluePrint[],number> = {
             .slice(0,-1)
             .map(x => x.split(' '))
             .map(x => ({
-                index: parseInt(x[1].replace('\:','')),
-                oreRobotCost:  [{material: 'ore',n: parseInt(x[6])}],
-                clayRobotCost: [{material: 'ore',n: parseInt(x[12])}],
-                obsidianCost: [{material: 'ore',n: parseInt(x[18])},{material: 'clay',n: parseInt(x[21])}],
-                geodeCost: [{material: 'ore',n: parseInt(x[27])},{material: 'obsidian',n: parseInt(x[30])}],
-            }))
+                oreRobotCost:  {ore: parseInt(x[6])},
+                clayRobotCost: {ore: parseInt(x[12])},
+                obsidianCost: {ore: parseInt(x[18]),clay: parseInt(x[21])},
+                geodeCost: {ore: parseInt(x[27]),obsidian: parseInt(x[30])},
+            }) as BluePrint)
     },
 
     solve1(prints){
-        return sum(prints
-            .map(p => mineGeodes(p)))
+        return sum(
+            zip(
+                range(1,prints.length),
+                prints.map(p => new MineGeodes(p,25).mine()))
+            .map(([i,n]) => i*n))
     },
 
     solve2(prints){
-        return 0
+        return product(prints
+            .slice(0,3)
+            .map(p => new MineGeodes(p,33).mine()))
     },
 }
 

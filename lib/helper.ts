@@ -78,6 +78,8 @@ export const maximum = (m: number,n: number): number => m > n ? m : n
 
 export const mod = (m: number,n: number): number => ((m % n) + n) % n;
 
+export const fact = (m: number): number => m === 0 ? 1 : m * fact(m-1)
+
 export const range = (min: number,max: number): number[] =>
     Array.from({length: Math.abs(max - min) + 1},(_,index) => minimum(min,max) + index)
 
@@ -99,6 +101,9 @@ export const chunks = <T>(arr: T[],num: number): T[][] => {
 
 export const sum = (arr: number[]): number => 
     arr.reduce((prev,cur) => prev+cur,0)
+
+export const product = (arr: number[]): number => 
+    arr.reduce((prev,cur) => prev*cur,1)
 
 export const nub = <T>(arr: T[],comp: (x: T,y: T) => boolean): T[] => {
     const filterList: T[] = []
@@ -164,3 +169,4 @@ export const wrapSolution: <T,R,S>(solution: Problem<T,R,S>) => (data: string,pa
 //console.log(stagger([[1,10],[3,10],[3,12]]))
 //console.log(nub([[498,6],[498,7],[498,6]],(x,y) => x[0] === y[0] && x[1] === y[1]))
 //console.log(intersection([1,2,3],[4,5,6]))
+//console.log(Array.from(iterate(x => x+1,0,10)))
