@@ -4,9 +4,7 @@ export const fold = <T,A = T>(array: Array<T>,base: A,fn: (prev: A,el: T,index: 
     array.forEach((ar,index) => {
         const res = fn(base,ar,index)
 
-        if(res){
-            base = res
-        }
+        base = res
     })
 
     return base
@@ -82,6 +80,8 @@ export const fact = (m: number): number => m === 0 ? 1 : m * fact(m-1)
 
 export const range = (min: number,max: number): number[] =>
     Array.from({length: Math.abs(max - min) + 1},(_,index) => minimum(min,max) + index)
+
+export const repeat = <T>(x: T,n: number): T[] => Array.from({length: n},() => x)
 
 export const chunks = <T>(arr: T[],num: number): T[][] => {
     const res: T[][] = []
