@@ -58,6 +58,16 @@ export function scanl <T,B = T>(arr: T[],base: B,fn: (prev: B,cur: T) => B): B[]
     return ret
 }
 
+export function* permutations <T>(arr: T[]): IterableIterator<T[]> {
+    for(let a of arr){
+        const del = arr.filter(b => a !== b)
+
+        for(let rest of permutations(del)){
+            yield [a,...rest]
+        }
+    }
+}
+
 export function intersection<T>(arr1: T[],arr2: T[],comp: (x:T,y:T) => boolean = (x,y) => x==y): T[] {
     return arr1.filter((a,index) => arr2.find(b => comp(a,b)))
 }
