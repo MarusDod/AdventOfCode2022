@@ -4,7 +4,6 @@ import Problem from "../../lib/problem"
 type Trail = '#' | '.'
 
 type Board = Map<number,Map<number,Trail>>
-//////
 
 type Turn = 'L' | 'R'
 
@@ -62,51 +61,84 @@ const findMaximumColumn = (board: Board,r: number): [Coordinate,Trail] =>
     getCol(board,r).reduce((prev,cur) => prev[0][0] > cur[0][0] ? prev : cur)
 
 
-/*  [((  r, 50,   left), (151 - r,       1, right)) | r <- [  1 ..  50]]
-    [((  0,  c,     up), (100 + c,       1, right)) | c <- [ 51 .. 100]]
-    [(( 51,  c,   down), ( c - 50,     100,  left)) | c <- [101 .. 150]]
-    [((  r, 151, right), (151 - r,     100,  left)) | r <- [  1 ..  50]]
 
-    [((  0,   c,    up), (    200, c - 100,    up)) | c <- [101 .. 150]]
-    [((  r, 101, right), (     50, r +  50,    up)) | r <- [ 51 .. 100]]
-    [((  r,  50,  left), (    101, r -  50,  down)) | r <- [ 51 .. 100]]
-    [((  r,   0,  left), (151 - r,      51, right)) | r <- [101 .. 150]]
+const squareSize = 49
 
-    [((100,   c,    up), ( 50 + c,      51, right)) | c <- [  1 ..  50]]
-    [((  r, 101, right), (151 - r,     150,  left)) | r <- [101 .. 150]]
-    [((151,   c,  down), (100 + c,      50,  left)) | c <- [ 51 .. 100]]
-    [((  r,   0,  left), (      1, r - 100,  down)) | r <- [151 .. 200]]
+const whichSquare = (c: Coordinate): number => Math.floor(c[0] / 50) * 3 + Math.floor(c[1] / 50) + 1
 
-    [((201,   c,  down), (      1, c + 100,  down)) | c <- [  1 ..  50]]
-    [((  r,  51, right), (    150, r - 100,    up)) | r <- [151 .. 200]]*/
+const squareCoordinates = (s: number): Coordinate => [Math.floor((s - 1) / 3) * 50,Math.floor((s - 1) % 3) * 50]
 
-const wraps = [
-    ...range(0,49).map(r => [[r,50,Facing.left],[100 + r,0,Facing.right]]),
-    ...range(50,99).map(c => [[0,c,Facing.up],[100 + c,0,Facing.right]]),
-    ...range(100,149).map(c => [[49,c,Facing.down],[c - 50,99,Facing.left]]),
-    ...range(0,49).map(r => [[r,149,Facing.right],[150 - r,99,Facing.left]]),
+const relCoordinates = (from: Coordinate,coord: Coordinate): Coordinate => 
+    [Math.abs(from[0] - coord[0]),Math.abs(from[1] - coord[1])]
 
-    ...range(100,149).map(c => [[0,c,Facing.up],[199,c - 99,Facing.up]]),
-    ...range(50,99).map(r => [[r,99,Facing.right],[49,r + 49,Facing.up]]),
-    ...range(50,99).map(r => [[r,50,Facing.left],[100,r - 49,Facing.down]]),
-    ...range(100,149).map(r => [[r,0,Facing.left],[150 - r, 50,Facing.right]]),
+const sumCoordinates = (from: Coordinate,coord: Coordinate): Coordinate => 
+    [from[0] + coord[0],from[1] + coord[1]]
 
-    ...range(0,50).map(c => [[100,c,Facing.up],[49 + c, 50,Facing.right]]),
-    ...range(100,149).map(r => [[r,99,Facing.right],[149 - r, 149,Facing.left]]),
-    ...range(50,99).map(c => [[149,c,Facing.down],[99 + c, 49,Facing.left]]),
-    ...range(150,199).map(r => [[r,0,Facing.left],[0,r-100,Facing.down]]),
+const adjSquares: Array<[[number,Facing],[number,Facing]]> = [
+    [[3,Facing.down],[5,Facing.left]],
+    [[5,Facing.right],[3,Facing.up]],
 
-    ...range(0,49).map(c => [[199,c,Facing.down],[0,c+99,Facing.down]]),
-    ...range(150,199).map(r => [[r,49,Facing.right],[149,r-99,Facing.up]]),
+    [[5,Facing.left],[7,Facing.down]],
+    [[7,Facing.up],[5,Facing.right]],
 
-] as Array<[Player,Player]>
+    [[8,Facing.down],[10,Facing.left]],
+    [[10,Facing.right],[8,Facing.up]],
+
+    [[2,Facing.left],[7,Facing.right]],
+    [[7,Facing.left],[2,Facing.right]],
+
+    [[2,Facing.up],[10,Facing.right]],
+    [[10,Facing.left],[2,Facing.down]],
+
+    [[3,Facing.up],[10,Facing.up]],
+    [[10,Facing.down],[3,Facing.down]],
+
+    [[8,Facing.right],[3,Facing.left]],
+    [[3,Facing.right],[8,Facing.left]],
+]
+
+const rotate = (f: Facing,g: Facing,relCoord: Coordinate): Coordinate => {
+    if(f === Facing.up && g === Facing.up)
+        return [squareSize,relCoord[1]]
+    else if(f === Facing.right && g === Facing.up)
+        return [squareSize,relCoord[0]]
+    else if(f === Facing.left && g === Facing.down)
+        return [0,relCoord[0]]
+    else if(f === Facing.up && g === Facing.right)
+        return [relCoord[1],0]
+    else if(f === Facing.down && g === Facing.left)
+        return [relCoord[1],squareSize]
+    else if(f === Facing.right && g === Facing.up)
+        return [squareSize,relCoord[0]]
+    else if(f === Facing.left && g === Facing.right)
+        return [squareSize - relCoord[0],0]
+    else if(f === Facing.down && g === Facing.down)
+        return [0,relCoord[1]]
+    else if(f === Facing.right && g === Facing.left)
+        return [squareSize - relCoord[0],squareSize]
+
+    throw new Error('unreachable')
+}
 
 const cubeMover: Mover = (board,player) => {
-    //console.log(player)
-    console.log(board.get(player[0])!.get(player[1]))
-    const opposite = wraps.find(w => w[0][0] === player[0] && w[0][1] === player[1] && player[2] === w[0][2])![1]
+    const coord: Coordinate = [player[0],player[1]]
+    const cur = board.get(player[0])!.get(player[1])
 
-    return [opposite,board.get(opposite[0])!.get(opposite[1])!]
+    if(!cur){
+        throw new Error('nop')
+    }
+
+    const square = whichSquare(coord)
+    const squareCoord = squareCoordinates(square)
+
+    const opposite = adjSquares.find(a => a[0][0] === square && player[2] === a[0][1])![1]
+    const oppositeCoord = squareCoordinates(opposite[0])
+
+    const finalCoord = sumCoordinates(oppositeCoord,rotate(player[2],opposite[1],relCoordinates(squareCoord,coord)))
+
+    console.log({coord,square,finalCoord,oppositeSquare:opposite[0]})
+
+    return [[...finalCoord,opposite[1]],board.get(opposite[0])!.get(opposite[1])!]
 }
 
 const linearMover: Mover = (board,player) => {
@@ -143,17 +175,23 @@ const goNext = (board: Board,mover: Mover,player: Player): [Player,Trail] => {
     return [[nextStep[0],nextStep[1],player[2]],nextTrail]
 }
 
+let fds: Map<number,Map<number,Trail | '<' | '>' | 'v' | '^'>>
+
 const advanceN = (board: Board,mover: Mover,player: Player,times: number): Player => {
     if(times === 0)
         return player
 
-    console.log({player})
+    if(!fds){
+        fds = new Map(board)
+    }
 
     const [nextStep,nextTrail] = goNext(board,mover,player)
 
     if(nextTrail === '#'){
         return player
     }
+    
+    fds.get(nextStep[0])!.set(nextStep[1],player[2] === Facing.down ? 'v' : player[2] === Facing.left ? '<' : player[2] === Facing.right ? '>' : '^')
 
     return advanceN(board,mover,nextStep,times-1)
 }
@@ -208,7 +246,7 @@ const solution: Problem<{board: Board,path: Direction[]},number> = {
     solve2(operations){
         const init: Coordinate = findMinimumRow(operations.board,0)[0]
 
-        return finalize(fold(
+        const a = finalize(fold(
             operations.path,
             [init[0],init[1],Facing.right] as Player,
             (player,cur,index) => {
@@ -220,6 +258,8 @@ const solution: Problem<{board: Board,path: Direction[]},number> = {
                 
                 return advanceN(operations.board,cubeMover,player,cur.times)
         }))
+
+        return a
     },
 }
 
