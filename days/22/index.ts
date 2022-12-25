@@ -138,7 +138,7 @@ const cubeMover: Mover = (board,player) => {
 
     console.log({coord,square,finalCoord,oppositeSquare:opposite[0]})
 
-    return [[...finalCoord,opposite[1]],board.get(opposite[0])!.get(opposite[1])!]
+    return [[...finalCoord,opposite[1]],board.get(finalCoord[0])!.get(finalCoord[1])!]
 }
 
 const linearMover: Mover = (board,player) => {
@@ -175,24 +175,18 @@ const goNext = (board: Board,mover: Mover,player: Player): [Player,Trail] => {
     return [[nextStep[0],nextStep[1],player[2]],nextTrail]
 }
 
-let fds: Map<number,Map<number,Trail | '<' | '>' | 'v' | '^'>>
-
 const advanceN = (board: Board,mover: Mover,player: Player,times: number): Player => {
     if(times === 0)
         return player
-
-    if(!fds){
-        fds = new Map(board)
-    }
 
     const [nextStep,nextTrail] = goNext(board,mover,player)
 
     if(nextTrail === '#'){
         return player
     }
-    
-    fds.get(nextStep[0])!.set(nextStep[1],player[2] === Facing.down ? 'v' : player[2] === Facing.left ? '<' : player[2] === Facing.right ? '>' : '^')
 
+    console.log(nextStep)
+    
     return advanceN(board,mover,nextStep,times-1)
 }
 

@@ -136,7 +136,7 @@ class Tetris {
 
             let rows = ''
 
-            /*for(let y = highest; y >= highest - 10; y--){
+            for(let y = highest; y >= highest - 20; y--){
                 let bitmap = ''
                 for(let x = 0; x < 7; x++){
                     bitmap += this.board.has(JSON.stringify([y,x])) ? 1 : 0
@@ -165,7 +165,7 @@ class Tetris {
                     height: this.getBoardHeight(),
                     numPieces: fallenRocks
                 })
-            }*/
+            }
 
             fallenRocks++
         }
